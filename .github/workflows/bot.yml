@@ -1,0 +1,32 @@
+name: Run bot
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - "main"
+    paths:
+      - "lichess-bot.py"
+  schedule:
+    - cron: "1 */4 * * *"
+
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Python Dependency Installation
+        uses: py-actions/py-dependency-install@v4.0.0
+
+      - name: Run a multi-line script
+        run: |
+          echo ${{ secrets.LICHESS_KEY }} > key.txt
+          chmod +x ./engines/fairy-stockfish-largeboard_x86-64  
+          chmod +x ./engines/stockfish-ubuntu-x86-64-sse41-popcnt
+          python3 lichess-bot.py
